@@ -110,6 +110,11 @@ def hibernate(root: Tk, settings: Settings, pack: Pack, state: State, targets: l
 
 
 def main_hibernate(root: Tk, settings: Settings, pack: Pack, state: State, targets: list[RollTarget]) -> None:
+    #conditional to avoid infinite recursion
+    if not state.hibernate_id :
+        #hibernate() ^ normally assigns this after an enforced delay. But if you skip to hibernate, that assignment is CANCELLED and thus skipped, leading to 'tk' taskbar icons spawning when focused.                                                 
+        state.hibernate_id = main_hibernate(root, settings, pack, state, targets) 
+        return #exit this call of main_hibernate() because it just called itself
     def on_end() -> None:
         state.hibernate_active = False
         state.pump_scare = False
